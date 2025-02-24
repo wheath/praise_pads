@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>a_warm_churchfront_pads.mp3</file>
+    </qresource>
+</RCC>
