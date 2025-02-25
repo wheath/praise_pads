@@ -1,7 +1,7 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
-import QtMultimedia 5.15
+import QtQuick 
+import QtQuick.Controls 
+import QtQuick.Layouts 
+import QtMultimedia 
 
 ApplicationWindow {
     visible: true
@@ -9,11 +9,10 @@ ApplicationWindow {
     height: 600
     title: "Praise Pads"
 
-    // Add Audio element
-    Audio {
+    MediaPlayer {
         id: padAudio
         source: "a_warm_churchfront_pads.mp3"
-        loops: Audio.Infinite
+        audioOutput: AudioOutput {}
     }
 
     ColumnLayout {
@@ -50,14 +49,14 @@ ApplicationWindow {
                             if (index === 0) {
                                 padAudio.play()
                             } else {
-                                audioController.playChord(index)
+                                //audioController.playChord(index)
                             }
                         }
                         onReleased: {
                             if (index === 0) {
                                 padAudio.stop()
                             } else {
-                                audioController.stopChord(index)
+                                //audioController.stopChord(index)
                             }
                         }
                     }

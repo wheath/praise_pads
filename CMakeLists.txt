@@ -15,8 +15,8 @@ endif()
 
 qt_add_executable(praise_pads
     main.cpp
-    audiocontroller.cpp
-    audiocontroller.h
+#    audiocontroller.cpp
+#    audiocontroller.h
 )
 
 qt_add_qml_module(praise_pads
