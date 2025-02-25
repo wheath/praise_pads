@@ -1,0 +1,94 @@
+name: WebAssembly Build
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+  push:
+    paths:
+      - '.github/workflows/wasm.yml'  # Only run when this file changes
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.5.3'
+        host: 'linux'
+        target: 'wasm'
+        arch: 'wasm_singlethread'
+        modules: 'qtmultimedia'
+
+    - name: Create build directory
+      run: mkdir build
+
+    - name: Configure CMake
+      working-directory: build
+      run: |
+        cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_PREFIX_PATH=$Qt6_DIR \
+        -DCMAKE_TOOLCHAIN_FILE=$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake
+
+    - name: Build
+      working-directory: build
+      run: cmake --build . --parallel
+
+    - name: Package Web Files
+      working-directory: build
+      run: |
+        mkdir web-package
+        cp praise_pads.* web-package/
+        cp qtloader.js web-package/
+        cp -r praise_pads.js web-package/
+        cp a_warm_churchfront_pads.mp3 web-package/
+
+    - name: Create index.html
+      working-directory: build/web-package
+      run: |
+        cat > index.html << 'EOL'
+        <!doctype html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Praise Pads</title>
+          </head>
+          <body>
+            <div id="qt-content">
+              <canvas id="canvas"></canvas>
+            </div>
+            <script src="qtloader.js"></script>
+            <script>
+              var qtLoader = new QtLoader({
+                canvasElement: document.getElementById('canvas'),
+                showLoader: function(loaderStatus) {
+                  var msg = document.createElement('div');
+                  msg.innerHTML = loaderStatus + "...";
+                  document.body.appendChild(msg);
+                },
+                showError: function(errorText) {
+                  var msg = document.createElement('div');
+                  msg.innerHTML = errorText;
+                  document.body.appendChild(msg);
+                }
+              });
+              qtLoader.loadEmscriptenModule("praise_pads");
+            </script>
+          </body>
+        </html>
+        EOL
+
+    - name: Upload Web Build
+      uses: actions/upload-artifact@v4
+      with:
+        name: web-build
+        path: build/web-package/ 

@@ -1,7 +1,10 @@
 name: Android Build
 
 on:
+  workflow_dispatch:  # Allows manual triggering
   push:
+    paths:
+      - '.github/workflows/android.yml'  # Only run when this file changes
     branches: [ main ]
   pull_request:
     branches: [ main ]
